@@ -1,0 +1,12 @@
+﻿@model IEnumerable<Chashnikov_LR2_CS.Models.Developer>
+@{
+    ViewBag.Title = "Все разработчики";
+}
+<a asp-action="Create">Добавить разработчика</a>
+<table class="table">
+    <tr><td>Имя</td><td>Возраст</td></tr>
+    @foreach (var item in Model)
+    {
+        <tr><td>@item.Name</td><td>@item.Age</td><td>@item.Company</td></tr>
+    }
+</table>
