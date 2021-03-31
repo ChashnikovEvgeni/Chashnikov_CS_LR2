@@ -41,8 +41,8 @@ namespace Chashnikov_LR2_CS.Controllers
             return await _context.Developers.ToListAsync();
         }
 
-    
 
+        [Authorize(Roles = "user")]
         // GET: api/Developers/findname/Tony
         [HttpGet("Name/{Name}")]
         public async Task<ActionResult<IEnumerable<Developer>>> GetName(string bname)
@@ -72,7 +72,9 @@ namespace Chashnikov_LR2_CS.Controllers
         //    var result = _context.Applications.Select((a) => new { Id = a.Id, Index = _context.Developers.Where((r) => r.Applications.Contains(a)).Select((r) => r.Id).FirstOrDefault() });
         //    return await Task.WhenAll(result);
         //}
-      
+
+
+        [Authorize(Roles = "user")]
         // GET: api/Developers/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Developer>> GetDeveloper(long id)
@@ -120,7 +122,9 @@ namespace Chashnikov_LR2_CS.Controllers
 
             return NoContent();
         }
-  
+
+
+        [Authorize(Roles = "admin")]
         // POST: api/Developers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
@@ -133,8 +137,8 @@ namespace Chashnikov_LR2_CS.Controllers
             return CreatedAtAction("GetDeveloper", new { id = developer.Id }, developer);
         }
 
-    
 
+        [Authorize(Roles = "admin")]
         // DELETE: api/Developers/5
         [HttpDelete("{id}")]
         public async Task<ActionResult<Developer>> DeleteDeveloper(long id)

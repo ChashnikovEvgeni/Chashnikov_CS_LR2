@@ -27,7 +27,9 @@ namespace Chashnikov_LR2_CS.Controllers
         {
             return await _context.Applications.ToListAsync();
         }
-      
+
+
+        [Authorize(Roles = "user")]
         // GET: api/Applications/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Application>> GetApplication(long id)
@@ -42,7 +44,9 @@ namespace Chashnikov_LR2_CS.Controllers
             return application;
         }
 
-       
+
+
+        [Authorize(Roles = "user")]
         [HttpGet("developer/{name}")]
         public async Task<ActionResult<IEnumerable<Application>>> GetCompanyApp(string name)
 {
@@ -50,7 +54,7 @@ namespace Chashnikov_LR2_CS.Controllers
     }
 
 
-
+        [Authorize(Roles = "user")]
         //GET: api/Applications/DevsApp/5
         [HttpGet("DevsApp/{id}")]
         public async Task<ActionResult<IEnumerable<Application>>> GetDevelopersApp(long id)
@@ -58,7 +62,7 @@ namespace Chashnikov_LR2_CS.Controllers
              return await _context.Applications.Where(u => u.DeveloperId == id).ToListAsync();
            }
 
-       
+        [Authorize(Roles = "user")]
         //GET: api/Applications/Appointment/Social
         [HttpGet("appointment/{appointment}")]
         public async Task<ActionResult<IEnumerable<Application>>> GetAppwithAppointment(string appointment)
@@ -103,7 +107,9 @@ namespace Chashnikov_LR2_CS.Controllers
         // POST: api/Applications
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
-     
+
+
+        [Authorize(Roles = "admin")]
         [HttpPost]
         public async Task<ActionResult<Application>> PostApplication(Application application)
         {
@@ -113,7 +119,7 @@ namespace Chashnikov_LR2_CS.Controllers
             return CreatedAtAction("GetApplication", new { id = application.Id }, application);
         }
 
-       
+        [Authorize(Roles = "admin")]
         // DELETE: api/Applications/5
         [HttpDelete("{id}")]
         public async Task<ActionResult<Application>> DeleteApplication(long id)
