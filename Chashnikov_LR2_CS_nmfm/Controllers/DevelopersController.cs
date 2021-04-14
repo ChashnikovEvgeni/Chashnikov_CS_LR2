@@ -16,84 +16,78 @@ namespace Chashnikov_LR2_CS.Controllers
     {
   
         private readonly MySystemContext _context;
+        private readonly InterfaceofDb _logic;
 
-        public DevelopersController(MySystemContext context)
+
+        public DevelopersController(MySystemContext context, InterfaceofDb logic)
         {
             _context = context;
+            _logic = logic;
             if (!_context.Developers.Any())
             {
-                Developer Tony= new Developer { Name = "Tony", Age = 28, Company = "Hub" };
-               Application App1 = new Application { Name = "Triil", Appointment = "Social", Developer = Tony };
-
-                _context.Developers.Add(Tony);
-                _context.Applications.Add(App1);
+         
                 _context.SaveChanges();
             }
      
       
         }
 
-        [Authorize(Roles = "user")]
+       [Authorize]
         // GET: api/Developers
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Developer>>> GetDevelopers()
+     
+        public CreatedAtActionResult GetDevelopers()
         {
-            return await _context.Developers.ToListAsync();
+            return CreatedAtAction("GetDevelopers", new
+            {
+              
+                result =_context.Developers.Select(p => new { Id = p.Id, Name = p.Name, Age = p.Age, Company = p.Company, Applications = p.Applications.Select(t => t.Name) })
+            });
+
         }
 
-
-        [Authorize(Roles = "user")]
-        // GET: api/Developers/findname/Tony
-        [HttpGet("Name/{Name}")]
-        public async Task<ActionResult<IEnumerable<Developer>>> GetName(string bname)
-        {
-            //return  _context.Developers.Include(u => u.Applications).ToList();
-            return await _context.Developers.Where(u=>u.Name== bname).ToListAsync();
+        // GET: api/developers/Company
+         [Authorize]
+        [HttpGet("Company")]
+        public CreatedAtActionResult GetCompany()
+        { return CreatedAtAction("GetCompany", new
+            {
+                result = _logic.ShowAllCompany(_context.Developers.ToList())
+               
+            });
+          
         }
 
-
-        // GET: api/Developers/findname/Tony
-        //[HttpGet("Sample/{Name}")]
-        //public Task<ActionResult<IEnumerable<Developer>>> GetSample(string bname)
-        //{
-        //    //var query = await (from dev in _context.Developers
-        //    //            join app in _context.Applications on dev.Id equals app.DeveloperId
-        //    //            select new
-        //    //            {
-        //    //                Name = dev.Name,
-        //    //                AppName = app.Name
-        //    //            });
-
-        //    //  return await Task.WhenAll(query);
-        //    //           //return  _context.Developers.Include(u => u.Applications).ToList();
-
-        //    //return await _context.Developers.Where(u => u.Name == bname).ToListAsync();
-
-        //    var result = _context.Applications.Select((a) => new { Id = a.Id, Index = _context.Developers.Where((r) => r.Applications.Contains(a)).Select((r) => r.Id).FirstOrDefault() });
-        //    return await Task.WhenAll(result);
-        //}
-
-
-        [Authorize(Roles = "user")]
+       [Authorize]
         // GET: api/Developers/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Developer>> GetDeveloper(long id)
+
+
+        public CreatedAtActionResult GetDeveloper(long id)
         {
-            var developer = await _context.Developers.FindAsync(id);
 
+            var developer = _context.Developers.Select(p => new { Id = p.Id, Name = p.Name, Age = p.Age, Company = p.Company, Applications = p.Applications.Select(t => t.Name) }).FirstOrDefault(a => a.Id == id);
             if (developer == null)
-            {
-                return NotFound();
-            }
 
-            return developer;
+                return CreatedAtAction("GetDeveloper", new
+                {
+                    result = "Данный разработчик не найден"
+
+                });
+
+            else
+                return CreatedAtAction("GetDeveloper", new
+                {
+                    result = developer
+
+                }) ;
+
         }
+    
 
-        [Authorize(Roles = "admin")]
+         [Authorize(Roles = "admin")]
 
         // PUT: api/Developers/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPut("{id}")]
         public async Task<IActionResult> PutDeveloper(long id, Developer developer)
         {
@@ -124,10 +118,8 @@ namespace Chashnikov_LR2_CS.Controllers
         }
 
 
-        [Authorize(Roles = "admin")]
+      [Authorize(Roles = "admin")]
         // POST: api/Developers
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
         public async Task<ActionResult<Developer>> PostDeveloper(Developer developer)
         {

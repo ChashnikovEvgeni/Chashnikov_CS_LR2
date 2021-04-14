@@ -12,13 +12,10 @@ namespace Chashnikov_LR2_CS
     {
         public void ConfigureServices(IServiceCollection services)
         {
-           // string con = "Server=(localdb)\\mssqllocaldb;Database=BoyMandbstore;Trusted_Connection=True;";
-            string cons = "Server=(localdb)\\mssqllocaldb;Database=SomeTastydb;Trusted_Connection=True;";
-            // устанавливаем контекст данных
-            //services.AddDbContext<ApplicationsContext>(options => options.UseSqlServer(con));
-            //services.AddDbContext<DevelopersContext>(options => options.UseSqlServer(con));
+          
+            string cons = "Server=(localdb)\\mssqllocaldb;Database=Waydb;Trusted_Connection=True;";
+            // устанавливаем контекст данных 
             services.AddDbContext<MySystemContext>(options => options.UseSqlServer(cons));
-            // services.AddDbContext<UserAndAppContext>(options => options.UseSqlServer(cons));
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                      .AddJwtBearer(options =>
                      {
@@ -44,6 +41,8 @@ namespace Chashnikov_LR2_CS
                          };
                      });
             services.AddControllers(); // используем контроллеры без представлений
+
+            services.AddScoped<InterfaceofDb, BLogic>();
 
 
 

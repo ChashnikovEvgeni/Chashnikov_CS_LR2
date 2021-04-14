@@ -15,66 +15,138 @@ namespace Chashnikov_LR2_CS.Controllers
     public class ApplicationsController : ControllerBase
     {
         private readonly MySystemContext _context;
+        private readonly InterfaceofDb _logic;
 
-        public ApplicationsController(MySystemContext context)
+        public ApplicationsController(MySystemContext context, InterfaceofDb logic)
         {
+            _logic = logic;
             _context = context;
         }
-        [Authorize(Roles = "user")]
+       [Authorize]
         // GET: api/Applications
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Application>>> GetApplications()
+        public async Task<ActionResult<IEnumerable<AppsInfo>>> GetApplications()
         {
-            return await _context.Applications.ToListAsync();
+            return  _logic.ShowAllApps(_context.Applications.Include(a=>a.UsersApps).ToList()); 
         }
 
 
-        [Authorize(Roles = "user")]
+       [Authorize]
         // GET: api/Applications/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Application>> GetApplication(long id)
+        public async Task<ActionResult<AppsInfo>> GetApplication(long id)
         {
-            var application = await _context.Applications.FindAsync(id);
+            var application =  await _context.Applications.Include(a => a.UsersApps).FirstAsync(a => a.Id == id);
 
             if (application == null)
             {
                 return NotFound();
             }
-
-            return application;
+           
+            return application.GetAppsInfo();
         }
 
 
 
-        [Authorize(Roles = "user")]
-        [HttpGet("developer/{name}")]
-        public async Task<ActionResult<IEnumerable<Application>>> GetCompanyApp(string name)
-{
-    return await _context.Applications.Where(b => b.Developer.Company == name).ToListAsync();
-    }
 
 
-        [Authorize(Roles = "user")]
+
+
+         [Authorize]
+        [HttpGet("CompanyApp/{name}")]
+        public CreatedAtActionResult GetCompanyApp(string name)
+
+        {
+           var t= _logic.SelectCompany(_context.Developers.Include(d => d.Applications).ToList(), name);
+            return CreatedAtAction("GetCompanyApp", new
+            {
+               
+                result = t
+
+            }); ;
+
+
+
+        }
+
+        [Authorize]
         //GET: api/Applications/DevsApp/5
         [HttpGet("DevsApp/{id}")]
-        public async Task<ActionResult<IEnumerable<Application>>> GetDevelopersApp(long id)
+        public async Task<ActionResult<IEnumerable<AppsInfo>>> GetDevelopersApp(long id)
         {
-             return await _context.Applications.Where(u => u.DeveloperId == id).ToListAsync();
+            return  _logic.DevelopersApplications(_context.Applications.Include(a => a.UsersApps).ToList(), id);
            }
 
-        [Authorize(Roles = "user")]
+       // [Authorize]
         //GET: api/Applications/Appointment/Social
         [HttpGet("appointment/{appointment}")]
-        public async Task<ActionResult<IEnumerable<Application>>> GetAppwithAppointment(string appointment)
-        { 
-            return await _context.Applications.Where(u => u.Appointment == appointment).ToListAsync();
+        public async Task<ActionResult<IEnumerable<AppsInfo>>> GetAppwithAppointment(string appointment)
+        {
+            
+            return _logic.SelectbyAppointment(_context.Applications.Include(a => a.UsersApps).ToList(), appointment);
         }
 
 
-        // PUT: api/Applications/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
+        //sort "true" means sorting in ascending order, "false" means sorting in descending order 
+         [Authorize]
+        //GET: api/Applications/ByNOF
+        [HttpGet("ByNof/{sorting}")]
+
+        public async Task<ActionResult<IEnumerable<AppsInfo>>> GetAppByNOFD(bool sorting)
+        {
+
+            return _logic.AppsbyNOF(_context.Applications.Include(a=>a.UsersApps).ToList(), sorting);
+        }
+
+
+
+        //NOF -Nummber Of User
+        //sort "true" means sorting in ascending order, "false" means sorting in descending order 
+        [Authorize]
+        //GET: api/Applications/TopbyNOF/appointment/sorting
+        [HttpGet("TopByNof/{appointment}/{sorting}")]
+
+        public async Task<ActionResult<IEnumerable<AppsInfo>>> GetAppTopByNof(string appointment, bool sorting)
+        {
+
+            return _logic.Top5AppsbyNOF(_context.Applications.Include(a => a.UsersApps).ToList(), appointment, sorting);
+        }
+
+
+
+
+        //sort "true" means sorting in ascending order, "false" means sorting in descending order 
+        // [Authorize]
+        //GET: api/Applications/ByRating/true
+        [HttpGet("ByRating/{sorting}")]
+
+        public async Task<ActionResult<IEnumerable<AppsInfo>>> GetAppByRating(bool sorting)
+        {
+
+            return _logic.AppsbyRating(_context.Applications.Include(a => a.UsersApps).ToList(), sorting);
+        }
+
+
+
+        //sort "true" means sorting in ascending order, "false" means sorting in descending order 
+         [Authorize]
+        //GET: api/Applications/Top5byRating/appointment/sorting
+        [HttpGet("Top5ByRating/{appointment}/{sorting}")]
+
+        public async Task<ActionResult<IEnumerable<AppsInfo>>> GetAppTopByRating(string appointment, bool sorting)
+        {
+
+            return _logic.Top5AppsbyRating(_context.Applications.Include(a => a.UsersApps).ToList(), appointment, sorting);
+        }
+
+
+
+
+
+
+
         [Authorize(Roles = "admin")]
+        // PUT: api/Applications/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutApplication(long id, Application application)
         {
@@ -105,10 +177,6 @@ namespace Chashnikov_LR2_CS.Controllers
         }
 
         // POST: api/Applications
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
-
-
         [Authorize(Roles = "admin")]
         [HttpPost]
         public async Task<ActionResult<Application>> PostApplication(Application application)
@@ -119,7 +187,7 @@ namespace Chashnikov_LR2_CS.Controllers
             return CreatedAtAction("GetApplication", new { id = application.Id }, application);
         }
 
-        [Authorize(Roles = "admin")]
+       [Authorize(Roles = "admin")]
         // DELETE: api/Applications/5
         [HttpDelete("{id}")]
         public async Task<ActionResult<Application>> DeleteApplication(long id)

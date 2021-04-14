@@ -11,6 +11,7 @@ namespace Chashnikov_LR2_CS.Models
         public DbSet<Developer> Developers { get; set; }
         public DbSet<Application> Applications { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<UsersApps> UsersApps { get; set; }
       
 
 
@@ -18,7 +19,7 @@ namespace Chashnikov_LR2_CS.Models
         public MySystemContext(DbContextOptions<MySystemContext> options)
              : base(options)
         {
-           // Database.EnsureDeleted();
+           //Database.EnsureDeleted();
             Database.EnsureCreated();
         }
 

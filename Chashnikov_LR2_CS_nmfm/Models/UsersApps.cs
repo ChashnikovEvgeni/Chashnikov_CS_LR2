@@ -5,9 +5,14 @@ using System.Threading.Tasks;
 
 namespace Chashnikov_LR2_CS.Models
 {
-    public class ApplicationDTO
+    public class UsersApps
     {
         public long Id { get; set; }
-        public string Name { get; set; }
+       public long UserId { get; set; }
+        public long ApplicationId { get; set; }
+        public User User { get; set; }
+
+
+
     }
 }
